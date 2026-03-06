@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "axios": "^1.7.2",
+    "million": "^3.1.11",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18"
