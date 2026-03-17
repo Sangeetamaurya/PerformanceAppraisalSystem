@@ -13,6 +13,7 @@ interface AuthContextValue extends AuthState {
   login:      (payload: LoginPayload)    => Promise<void>;
   register:   (payload: RegisterPayload) => Promise<void>;
   logout:     () => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
   error:      string | null;
   clearError: () => void;
 }
@@ -49,14 +50,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState(s => ({ ...s, isLoading: false }));
   }, []);
 
-  // Backend always returns { token, user: { id, name, email, role, employeeId } }
+  // Backend returns { token, user: { id, name, email, role, employeeId, isFirstLogin } }
   const handleAuthResponse = useCallback((data: { token: string; user: AuthUser }) => {
     if (!data.token) throw new Error('No token in server response');
     if (!data.user?.role) throw new Error('No user/role in server response');
     sessionStorage.setItem(TOKEN_KEY, data.token);
     sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
     setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
-    router.push(ROLE_HOME[data.user.role]);
+
+    // If it's the employee's first login, force password change before entering dashboard
+    if (data.user.isFirstLogin) {
+      router.push('/change-password');
+    } else {
+      router.push(ROLE_HOME[data.user.role]);
+    }
   }, [router]);
 
   const login = useCallback(async (payload: LoginPayload) => {
@@ -88,11 +95,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/login');
   }, [router]);
 
+  // Allows pages (e.g. change-password) to patch user fields in state + storage
+  const updateUser = useCallback((updates: Partial<AuthUser>) => {
+    setState(prev => {
+      if (!prev.user) return prev;
+      const updatedUser = { ...prev.user, ...updates };
+      sessionStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+      return { ...prev, user: updatedUser };
+    });
+  }, []);
+
   const clearError = useCallback(() => setError(null), []);
 
   const value = useMemo(
-    () => ({ ...state, login, register, logout, error, clearError }),
-    [state, login, register, logout, error, clearError],
+    () => ({ ...state, login, register, logout, updateUser, error, clearError }),
+    [state, login, register, logout, updateUser, error, clearError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -15,4 +15,11 @@ export const hrService = {
     const { data } = await axiosInstance.post<UploadSummary>('/hr/upload-excel', formData);
     return data;
   },
+
+  async resetEmployeePassword(employeeId: string): Promise<{ message: string; temporaryPassword: string }> {
+    const { data } = await axiosInstance.post<{ message: string; temporaryPassword: string }>(
+      `/hr/reset-employee-password/${employeeId}`
+    );
+    return data;
+  },
 };

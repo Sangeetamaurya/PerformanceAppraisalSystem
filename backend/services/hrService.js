@@ -154,6 +154,7 @@ const uploadEmployeesFromExcel = async (filePath) => {
           password: generatedPassword,
           role: USER_ROLES[2],
           employee: employee._id,
+          isFirstLogin: true,
         });
         generatedAccounts.push({
           name: employee.name,
@@ -195,8 +196,28 @@ const listAllEmployees = async () => {
   return employees;
 };
 
+const resetEmployeePassword = async (employeeId) => {
+  // employeeId here is the MongoDB ObjectId of the Employee document
+  const user = await User.findOne({ employee: employeeId });
+  if (!user) {
+    const error = new Error('No user account found for this employee');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const temporaryPassword = generateRandomPassword(12);
+
+  // Assign plain text — the pre-save hook on User will hash it automatically
+  user.password = temporaryPassword;
+  user.isFirstLogin = true;
+  await user.save();
+
+  return { temporaryPassword };
+};
+
 module.exports = {
   uploadEmployeesFromExcel,
   listAllEmployees,
+  resetEmployeePassword,
 };
 

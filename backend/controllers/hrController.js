@@ -1,4 +1,4 @@
-const { uploadEmployeesFromExcel, listAllEmployees } = require("../services/hrService");
+const { uploadEmployeesFromExcel, listAllEmployees, resetEmployeePassword } = require("../services/hrService");
 
 const uploadExcelController = async (req, res, next) => {
   try {
@@ -21,7 +21,24 @@ const listEmployeesController = async (req, res, next) => {
   }
 };
 
+const resetEmployeePasswordController = async (req, res, next) => {
+  try {
+    const { employeeId } = req.params;
+    if (!employeeId) {
+      return res.status(400).json({ message: 'employeeId param is required' });
+    }
+    const result = await resetEmployeePassword(employeeId);
+    return res.json({
+      message: 'Password reset successfully. Share the temporary password with the employee.',
+      temporaryPassword: result.temporaryPassword,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   uploadExcelController,
   listEmployeesController,
+  resetEmployeePasswordController,
 };

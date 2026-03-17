@@ -3,16 +3,166 @@
 import { useEffect, useState } from 'react';
 import { hrService } from '@/services/hrService';
 import { PageHeader } from '@/components/layouts/PageHeader';
-import { Card, LoadingSpinner, ErrorAlert, EmptyState, Badge } from '@/components/ui';
+import { Card, LoadingSpinner, ErrorAlert, EmptyState, Badge, SuccessAlert } from '@/components/ui';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import { Employee } from '@/types';
+import { extractApiError } from '@/lib/utils';
 
+// ─── Reset Password Modal ────────────────────────────────────────────────────
+interface ResetModalState {
+  employee: Employee;
+  status: 'confirm' | 'loading' | 'done';
+  temporaryPassword?: string;
+  error?: string;
+}
+
+interface ResetPasswordModalProps {
+  modal: ResetModalState;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function ResetPasswordModal({ modal, onClose, onConfirm }: ResetPasswordModalProps) {
+  const [copied, setCopied] = useState(false);
+
+  function copyToClipboard() {
+    if (modal.temporaryPassword) {
+      navigator.clipboard.writeText(modal.temporaryPassword);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={modal.status === 'loading' ? undefined : onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        {/* Confirm state */}
+        {modal.status === 'confirm' && (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Reset Password</h3>
+                <p className="text-sm text-gray-500">This will generate a new temporary password</p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-4 mb-5">
+              <p className="text-sm text-gray-700">
+                You are about to reset the password for{' '}
+                <span className="font-semibold text-gray-900">{modal.employee.name}</span>{' '}
+                <span className="text-gray-400">({modal.employee.email})</span>.
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                They will be required to change it on their next login.
+              </p>
+            </div>
+
+            {modal.error && (
+              <ErrorAlert message={modal.error} className="mb-4" />
+            )}
+
+            <div className="flex gap-3">
+              <Button variant="secondary" className="flex-1" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button variant="danger" className="flex-1" onClick={onConfirm}>
+                Reset Password
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Loading state */}
+        {modal.status === 'loading' && (
+          <div className="py-8 flex flex-col items-center gap-3">
+            <LoadingSpinner size="md" />
+            <p className="text-sm text-gray-500">Generating new password...</p>
+          </div>
+        )}
+
+        {/* Done state — show the temporary password */}
+        {modal.status === 'done' && modal.temporaryPassword && (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+                <svg className="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Password Reset</h3>
+                <p className="text-sm text-gray-500">Share this with the employee</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-3">
+              New temporary password for{' '}
+              <span className="font-semibold text-gray-800">{modal.employee.name}</span>:
+            </p>
+
+            {/* Password display */}
+            <div className="flex items-center gap-2 bg-gray-900 rounded-xl px-4 py-3 mb-2">
+              <code className="flex-1 text-emerald-400 font-mono text-base tracking-widest">
+                {modal.temporaryPassword}
+              </code>
+              <button
+                onClick={copyToClipboard}
+                className="shrink-0 text-gray-400 hover:text-white transition-colors"
+                title="Copy to clipboard"
+              >
+                {copied ? (
+                  <svg className="h-5 w-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-400 mb-5 flex items-center gap-1.5">
+              <svg className="h-3.5 w-3.5 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              This password will not be shown again. Copy it before closing.
+            </p>
+
+            <Button className="w-full" onClick={onClose}>
+              Done
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
 export default function HREmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filtered, setFiltered] = useState<Employee[]>([]);
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resetModal, setResetModal] = useState<ResetModalState | null>(null);
+  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     hrService
@@ -38,6 +188,32 @@ export default function HREmployeesPage() {
     );
   }, [search, employees]);
 
+  function openResetModal(employee: Employee) {
+    setResetSuccess(null);
+    setResetModal({ employee, status: 'confirm' });
+  }
+
+  async function handleConfirmReset() {
+    if (!resetModal) return;
+    setResetModal(prev => prev ? { ...prev, status: 'loading', error: undefined } : null);
+    try {
+      const result = await hrService.resetEmployeePassword(resetModal.employee._id);
+      setResetModal(prev => prev ? { ...prev, status: 'done', temporaryPassword: result.temporaryPassword } : null);
+    } catch (err) {
+      setResetModal(prev => prev
+        ? { ...prev, status: 'confirm', error: extractApiError(err) }
+        : null
+      );
+    }
+  }
+
+  function handleCloseModal() {
+    if (resetModal?.status === 'done') {
+      setResetSuccess(`Password for ${resetModal.employee.name} has been reset successfully.`);
+    }
+    setResetModal(null);
+  }
+
   const scoreBar = (value: number, max = 100) => (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -56,6 +232,10 @@ export default function HREmployeesPage() {
         title="Employees"
         subtitle={`${employees.length} total employees in the system`}
       />
+
+      {resetSuccess && (
+        <SuccessAlert message={resetSuccess} className="mb-4" />
+      )}
 
       <Card padding="none">
         <div className="p-4 border-b border-gray-100">
@@ -87,7 +267,7 @@ export default function HREmployeesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/60">
-                  {['ID', 'Name', 'Department', 'KPI Score', 'Attendance', 'Sales %', 'Peer Rating'].map((h) => (
+                  {['ID', 'Name', 'Department', 'KPI Score', 'Attendance', 'Sales %', 'Peer Rating', 'Actions'].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       {h}
                     </th>
@@ -127,6 +307,20 @@ export default function HREmployeesPage() {
                         <span className="text-xs text-gray-500 ml-1">{emp.peerRating}</span>
                       </div>
                     </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openResetModal(emp)}
+                        className="text-amber-600 hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        Reset Password
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -137,6 +331,15 @@ export default function HREmployeesPage() {
           </div>
         )}
       </Card>
+
+      {/* Reset Password Modal */}
+      {resetModal && (
+        <ResetPasswordModal
+          modal={resetModal}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmReset}
+        />
+      )}
     </div>
   );
 }

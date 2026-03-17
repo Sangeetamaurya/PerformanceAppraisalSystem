@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadExcelController, listEmployeesController } = require('../controllers/hrController');
+const { uploadExcelController, listEmployeesController, resetEmployeePasswordController } = require('../controllers/hrController');
 const { authMiddleware, authorizeRoles } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 
@@ -26,6 +26,14 @@ router.post(
 
 // HR: view all employees
 router.get('/employees', authMiddleware, authorizeRoles('HR'), listEmployeesController);
+
+// HR: reset an employee's password
+router.post(
+  '/reset-employee-password/:employeeId',
+  authMiddleware,
+  authorizeRoles('HR'),
+  resetEmployeePasswordController
+);
 
 module.exports = router;
 

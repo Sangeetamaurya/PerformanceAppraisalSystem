@@ -28,6 +28,7 @@ const login = async ({ email, password }) => {
       email: user.email,
       role: user.role,
       employeeId: user.employee ? user.employee._id.toString() : null,
+      isFirstLogin: user.isFirstLogin,
     },
   };
 };
@@ -66,8 +67,38 @@ const register = async ({ name, email, password, role }) => {
   };
 };
 
+const changePassword = async ({ userId, currentPassword, newPassword }) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    const error = new Error('Current password is incorrect');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (newPassword.length < 6) {
+    const error = new Error('New password must be at least 6 characters');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Assign plain text — the pre-save hook will hash it
+  user.password = newPassword;
+  user.isFirstLogin = false;
+  await user.save();
+
+  return { message: 'Password changed successfully' };
+};
+
 module.exports = {
   login,
   register,
+  changePassword,
 };
 

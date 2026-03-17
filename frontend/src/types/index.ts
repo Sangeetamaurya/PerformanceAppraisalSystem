@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string;
   role: UserRole;
   employeeId?: string | null;
+  isFirstLogin?: boolean;
 }
 
 export interface AuthState {

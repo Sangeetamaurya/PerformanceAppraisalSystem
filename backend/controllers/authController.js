@@ -1,4 +1,4 @@
-const { login, register } = require('../services/authService');
+const { login, register, changePassword } = require('../services/authService');
 const { USER_ROLES } = require('../models/User');
 
 const loginController = async (req, res, next) => {
@@ -30,8 +30,22 @@ const registerController = async (req, res, next) => {
   }
 };
 
+const changePasswordController = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'currentPassword and newPassword are required' });
+    }
+    const result = await changePassword({ userId: req.user.id, currentPassword, newPassword });
+    return res.json(result);
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   loginController,
   registerController,
+  changePasswordController,
 };
 

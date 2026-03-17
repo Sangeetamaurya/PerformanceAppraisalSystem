@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       ref: 'Employee',
       default: null,
     },
+    isFirstLogin: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
