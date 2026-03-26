@@ -22,7 +22,6 @@ connectDB().catch((err) => {
   process.exit(1);
 });
 
-const cors = require('cors');
 
 app.use(cors({
   origin: [
