@@ -22,7 +22,15 @@ connectDB().catch((err) => {
   process.exit(1);
 });
 
-app.use(cors());
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://performance-appraisal-system.vercel.app"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
