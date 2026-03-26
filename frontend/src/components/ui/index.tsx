@@ -7,7 +7,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Card({ children, className, padding = 'md', ...props }: CardProps) {
-  const paddings = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' };
+  const paddings = { none: '', sm: 'p-3 sm:p-4', md: 'p-4 sm:p-6', lg: 'p-5 sm:p-8' };
   return (
     <div
       className={cn(
@@ -32,7 +32,7 @@ export function Badge({ children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border',
+        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
         className,
       )}
     >
@@ -52,17 +52,9 @@ export function LoadingSpinner({ size = 'md', className, text }: SpinnerProps) {
   const sizes = { sm: 'h-4 w-4', md: 'h-8 w-8', lg: 'h-12 w-12' };
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
-      <svg
-        className={cn('animate-spin text-indigo-600', sizes[size])}
-        fill="none"
-        viewBox="0 0 24 24"
-      >
+      <svg className={cn('animate-spin text-indigo-600', sizes[size])} fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-        />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
       </svg>
       {text && <p className="text-sm text-gray-500">{text}</p>}
     </div>
@@ -86,21 +78,11 @@ export function ErrorAlert({ message, onDismiss, className }: ErrorAlertProps) {
       )}
     >
       <svg className="h-5 w-5 shrink-0 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-          clipRule="evenodd"
-        />
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
       </svg>
       <p className="text-sm text-red-700 flex-1">{message}</p>
       {onDismiss && (
-        <button
-          onClick={onDismiss}
-          className="text-red-400 hover:text-red-600 transition-colors"
-          aria-label="Dismiss"
-        >
-          ✕
-        </button>
+        <button onClick={onDismiss} className="text-red-400 hover:text-red-600 transition-colors shrink-0" aria-label="Dismiss">✕</button>
       )}
     </div>
   );
@@ -122,11 +104,7 @@ export function SuccessAlert({ message, className }: SuccessAlertProps) {
       )}
     >
       <svg className="h-5 w-5 shrink-0 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-          clipRule="evenodd"
-        />
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
       </svg>
       <p className="text-sm text-emerald-700">{message}</p>
     </div>
@@ -144,13 +122,13 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon, trend, accentClass = 'bg-indigo-50 text-indigo-600' }: StatCardProps) {
   return (
-    <Card className="flex items-center gap-4">
-      <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0', accentClass)}>
+    <Card className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 p-3 sm:p-5">
+      <div className={cn('h-9 w-9 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center flex-shrink-0', accentClass)}>
         {icon}
       </div>
-      <div className="min-w-0">
-        <p className="text-sm text-gray-500 truncate">{label}</p>
-        <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
+      <div className="min-w-0 text-center sm:text-left">
+        <p className="text-xs sm:text-sm text-gray-500 truncate leading-tight">{label}</p>
+        <p className="text-lg sm:text-2xl font-bold text-gray-900 leading-tight">{value}</p>
         {trend && <p className="text-xs text-gray-400 mt-0.5">{trend}</p>}
       </div>
     </Card>
@@ -166,7 +144,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
       {icon && <div className="mb-4 text-gray-300">{icon}</div>}
       <h3 className="text-base font-semibold text-gray-700">{title}</h3>
       {description && <p className="mt-1 text-sm text-gray-400 max-w-xs">{description}</p>}

@@ -65,22 +65,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gray-950 flex-col p-12 gap-20">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-9 w-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+      <div className="hidden lg:flex lg:w-1/2 bg-gray-950 flex-col p-12 gap-20 justify-center">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">
             PA
           </div>
-          <span className="text-white font-semibold text-lg">
-            Appraisal System
-          </span>
+          <span className="text-white font-semibold text-lg">Appraisal System</span>
         </div>
 
         <div>
           <blockquote className="text-3xl font-light text-white leading-snug mb-6">
-            "Performance management isn't about catching people doing things
-            wrong — it's about helping them do things right."
+            &ldquo;Performance management isn&apos;t about catching people doing things
+            wrong — it&apos;s about helping them do things right.&rdquo;
           </blockquote>
           <div className="flex gap-8 text-sm text-gray-400">
             {[
@@ -89,9 +87,7 @@ export default function LoginPage() {
               { val: "360°", lbl: "Feedback View" },
             ].map((item) => (
               <div key={item.lbl}>
-                <p className="text-indigo-400 font-bold text-base">
-                  {item.val}
-                </p>
+                <p className="text-indigo-400 font-bold text-base">{item.val}</p>
                 <p>{item.lbl}</p>
               </div>
             ))}
@@ -100,21 +96,23 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-12 bg-gray-50 min-h-screen lg:min-h-0">
         <div className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="flex items-center  gap-2 mb-8 lg:hidden">
+            <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">
+              PA
+            </div>
+            <span className="font-semibold text-gray-800 text-lg">Appraisal System</span>
+          </div>
+
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-500">Sign in to your account to continue</p>
           </div>
 
           {error && (
-            <ErrorAlert
-              message={error}
-              onDismiss={clearError}
-              className="mb-6"
-            />
+            <ErrorAlert message={error} onDismiss={clearError} className="mb-6" />
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -140,22 +138,14 @@ export default function LoginPage() {
               error={errors.password}
             />
 
-            <Button
-              type="submit"
-              size="lg"
-              isLoading={isSubmitting}
-              className="w-full mt-2"
-            >
+            <Button type="submit" size="lg" isLoading={isSubmitting} className="w-full mt-2">
               Sign In
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
-            >
+            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
               Register here
             </Link>
           </p>

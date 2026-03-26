@@ -87,12 +87,11 @@ export default function ManagerAppraisalPage() {
     <div>
       <PageHeader title="Submit Appraisal" subtitle="Rate and provide feedback for a team member" />
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Form */}
         <Card>
           <h2 className="font-semibold text-gray-900 mb-5">Appraisal Form</h2>
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            {/* Employee Select */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">Select Employee</label>
               <select
@@ -112,10 +111,9 @@ export default function ManagerAppraisalPage() {
               {errors.employeeId && <p className="text-xs text-red-500">{errors.employeeId}</p>}
             </div>
 
-            {/* Star Rating */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">Manager Rating</label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
@@ -124,7 +122,7 @@ export default function ManagerAppraisalPage() {
                     className="transition-transform hover:scale-110 focus:outline-none"
                   >
                     <svg
-                      className={`h-9 w-9 transition-colors ${star <= values.managerRating ? 'text-amber-400' : 'text-gray-200 hover:text-amber-200'}`}
+                      className={`h-8 w-8 sm:h-9 sm:w-9 transition-colors ${star <= values.managerRating ? 'text-amber-400' : 'text-gray-200 hover:text-amber-200'}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -141,7 +139,6 @@ export default function ManagerAppraisalPage() {
               {errors.managerRating && <p className="text-xs text-red-500">{errors.managerRating}</p>}
             </div>
 
-            {/* Feedback */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">Manager Feedback</label>
               <textarea
@@ -158,7 +155,7 @@ export default function ManagerAppraisalPage() {
                   ? <p className="text-xs text-red-500">{errors.managerFeedback}</p>
                   : <p className="text-xs text-gray-400">The AI system will analyze sentiment in this feedback.</p>
                 }
-                <p className="text-xs text-gray-400">{values.managerFeedback.length} chars</p>
+                <p className="text-xs text-gray-400 shrink-0 ml-2">{values.managerFeedback.length} chars</p>
               </div>
             </div>
 
@@ -172,12 +169,11 @@ export default function ManagerAppraisalPage() {
 
         {/* Preview / Result Panel */}
         <div className="space-y-4">
-          {/* Selected employee preview */}
           {selectedEmployee && !result && (
             <Card className="border-indigo-100 bg-indigo-50/30">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Selected Employee</h3>
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-lg">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-base sm:text-lg shrink-0">
                   {selectedEmployee.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -201,37 +197,25 @@ export default function ManagerAppraisalPage() {
             </Card>
           )}
 
-          {/* Appraisal result */}
           {result && (
             <Card className="border-emerald-100">
               <SuccessAlert message="Appraisal submitted successfully!" className="mb-4" />
               <h3 className="font-semibold text-gray-900 mb-4">Appraisal Results</h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Employee</span>
-                  <span className="font-medium text-gray-900">{result.employee?.name}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Final Score</span>
-                  <span className={`text-lg font-bold ${getScoreColor(result.finalScore)}`}>{result.finalScore?.toFixed(1)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Performance</span>
-                  {result.performanceCategory && (
-                    <Badge className={getPerformanceBadgeColor(result.performanceCategory)}>
-                      {result.performanceCategory}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Sentiment</span>
-                  <span className={`font-semibold ${getSentimentColor(result.sentimentCategory)}`}>
-                    {result.sentimentCategory}
-                  </span>
-                </div>
+                {[
+                  { label: 'Employee', content: <span className="font-medium text-gray-900">{result.employee?.name}</span> },
+                  { label: 'Final Score', content: <span className={`text-lg font-bold ${getScoreColor(result.finalScore)}`}>{result.finalScore?.toFixed(1)}</span> },
+                  { label: 'Performance', content: result.performanceCategory && <Badge className={getPerformanceBadgeColor(result.performanceCategory)}>{result.performanceCategory}</Badge> },
+                  { label: 'Sentiment', content: <span className={`font-semibold ${getSentimentColor(result.sentimentCategory)}`}>{result.sentimentCategory}</span> },
+                ].map((row) => (
+                  <div key={row.label} className="flex justify-between items-center py-2 border-b border-gray-50">
+                    <span className="text-sm text-gray-500">{row.label}</span>
+                    {row.content}
+                  </div>
+                ))}
                 {result.biasFlag && (
                   <div className="flex items-center gap-2 bg-red-50 rounded-lg px-3 py-2 text-sm text-red-600">
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     Bias flag raised on this appraisal

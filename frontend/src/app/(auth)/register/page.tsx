@@ -22,7 +22,6 @@ interface FormErrors {
   role?: string;
 }
 
-/* ✅ Employee removed */
 const ROLES: { value: UserRole; label: string; description: string }[] = [
   { value: "HR", label: "HR", description: "Manage employees & analytics" },
   { value: "Manager", label: "Manager", description: "Review & appraise team" },
@@ -30,69 +29,35 @@ const ROLES: { value: UserRole; label: string; description: string }[] = [
 
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {};
-
-  if (!values.name.trim()) {
-    errors.name = "Full name is required";
-  }
-
-  if (!values.email.trim()) {
-    errors.email = "Email is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-    errors.email = "Invalid email";
-  }
-
-  if (!values.password) {
-    errors.password = "Password is required";
-  } else if (values.password.length < 6) {
-    errors.password = "Minimum 6 characters";
-  }
-
-  if (!values.role) {
-    errors.role = "Please select a role";
-  }
-
+  if (!values.name.trim()) errors.name = "Full name is required";
+  if (!values.email.trim()) errors.email = "Email is required";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.email = "Invalid email";
+  if (!values.password) errors.password = "Password is required";
+  else if (values.password.length < 6) errors.password = "Minimum 6 characters";
+  if (!values.role) errors.role = "Please select a role";
   return errors;
 }
 
 export default function RegisterPage() {
   const { register, error, clearError } = useAuth();
 
-  const [values, setValues] = useState<FormValues>({
-    name: "",
-    email: "",
-    password: "",
-    role: "",
-  });
-
+  const [values, setValues] = useState<FormValues>({ name: "", email: "", password: "", role: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-
     setValues((prev) => ({ ...prev, [name]: value }));
-
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-
-    if (error) {
-      clearError();
-    }
+    if (errors[name as keyof FormErrors]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+    if (error) clearError();
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     const validationErrors = validate(values);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
 
     setIsSubmitting(true);
-
     try {
       await register({
         name: values.name,
@@ -106,27 +71,20 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-gray-50">
-      <div className="w-full max-w-md border  rounded-xl p-4 shadow-lg">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-10 sm:py-12 bg-gray-50">
+      <div className="w-full max-w-md border rounded-xl p-5 sm:p-6 shadow-lg bg-white">
+        <div className="mb-7 sm:mb-8">
+          <div className="flex items-center gap-2 mb-5 sm:mb-6">
+            <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0">
               PA
             </div>
-            <span className="font-semibold text-gray-800">
-              Appraisal System
-            </span>
+            <span className="font-semibold text-gray-800">Appraisal System</span>
           </div>
-
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Create account
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create account</h1>
           <p className="text-gray-500">Register as HR or Manager</p>
         </div>
 
-        {error && (
-          <ErrorAlert message={error} onDismiss={clearError} className="mb-6" />
-        )}
+        {error && <ErrorAlert message={error} onDismiss={clearError} className="mb-6" />}
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <Input
@@ -163,10 +121,7 @@ export default function RegisterPage() {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Select your role
-            </label>
-
+            <label className="text-sm font-medium text-gray-700">Select your role</label>
             <div className="grid grid-cols-2 gap-2">
               {ROLES.map((r) => (
                 <button
@@ -183,34 +138,21 @@ export default function RegisterPage() {
                   }`}
                 >
                   <span className="font-semibold text-sm">{r.label}</span>
-                  <span className="text-xs leading-tight opacity-70">
-                    {r.description}
-                  </span>
+                  <span className="text-xs leading-tight opacity-70">{r.description}</span>
                 </button>
               ))}
             </div>
-
-            {errors.role && (
-              <p className="text-xs text-red-500">{errors.role}</p>
-            )}
+            {errors.role && <p className="text-xs text-red-500">{errors.role}</p>}
           </div>
 
-          <Button
-            type="submit"
-            size="lg"
-            isLoading={isSubmitting}
-            className="w-full"
-          >
+          <Button type="submit" size="lg" isLoading={isSubmitting} className="w-full">
             Create Account
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-700"
-          >
+          <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
             Sign in
           </Link>
         </p>

@@ -21,8 +21,8 @@ function ScoreRing({ score, label }: { score: number; label: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="relative h-24 w-24">
-        <svg className="h-24 w-24 -rotate-90" viewBox="0 0 96 96">
+      <div className="relative h-20 w-20 sm:h-24 sm:w-24">
+        <svg className="h-20 w-20 sm:h-24 sm:w-24 -rotate-90" viewBox="0 0 96 96">
           <circle cx="48" cy="48" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="8" />
           <circle
             cx="48"
@@ -38,7 +38,7 @@ function ScoreRing({ score, label }: { score: number; label: string }) {
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-xl font-bold ${getScoreColor(clampedScore)}`}>{clampedScore}</span>
+          <span className={`text-lg sm:text-xl font-bold ${getScoreColor(clampedScore)}`}>{clampedScore}</span>
         </div>
       </div>
       <p className="text-xs text-gray-500 text-center">{label}</p>
@@ -57,8 +57,7 @@ export default function EmployeeReportPage() {
       .getMyReport()
       .then(setReport)
       .catch((err) => {
-        const msg =
-          err?.response?.data?.message ?? 'Could not load your appraisal report.';
+        const msg = err?.response?.data?.message ?? 'Could not load your appraisal report.';
         setError(msg);
       })
       .finally(() => setIsLoading(false));
@@ -69,7 +68,7 @@ export default function EmployeeReportPage() {
   return (
     <div>
       <PageHeader
-        title={`My Performance Report`}
+        title="My Performance Report"
         subtitle={report ? `Last updated: ${formatDate(report.createdAt)}` : `Welcome, ${user?.name}`}
       />
 
@@ -84,30 +83,30 @@ export default function EmployeeReportPage() {
               <p className="text-sm text-amber-700 mt-1">
                 {error === 'Employee profile not linked to this user'
                   ? 'Your user account is not linked to an employee profile yet. Please contact HR.'
-                  : 'Your manager hasn\'t submitted an appraisal for you yet. Check back later.'}
+                  : "Your manager hasn't submitted an appraisal for you yet. Check back later."}
               </p>
             </div>
           </div>
         </Card>
       ) : report ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Profile Card */}
           <Card className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="h-16 w-16 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-700 font-bold text-2xl shrink-0">
+            <div className="h-14 w-14 sm:h-16 sm:w-16 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-700 font-bold text-xl sm:text-2xl shrink-0">
               {report.employee?.name?.charAt(0).toUpperCase()}
             </div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between gap-2 flex-wrap">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{report.employee?.name}</h2>
-                  <p className="text-gray-500">{report.employee?.email}</p>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">{report.employee?.name}</h2>
+                  <p className="text-gray-500 text-sm">{report.employee?.email}</p>
                   <p className="text-sm text-gray-400 mt-0.5">
                     {report.employee?.department} · ID: {report.employee?.employeeId}
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-1.5">
+                <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2">
                   {report.performanceCategory && (
-                    <Badge className={`${getPerformanceBadgeColor(report.performanceCategory)} text-sm px-3 py-1`}>
+                    <Badge className={`${getPerformanceBadgeColor(report.performanceCategory)} text-xs sm:text-sm px-2 sm:px-3 py-1`}>
                       {report.performanceCategory}
                     </Badge>
                   )}
@@ -123,24 +122,24 @@ export default function EmployeeReportPage() {
 
           {/* Score Rings */}
           <Card>
-            <h3 className="font-semibold text-gray-900 mb-6">Performance Metrics</h3>
-            <div className="flex justify-around flex-wrap gap-6">
+            <h3 className="font-semibold text-gray-900 mb-5 sm:mb-6">Performance Metrics</h3>
+            <div className="grid grid-cols-3 sm:flex sm:justify-around flex-wrap gap-4 sm:gap-6">
               <ScoreRing score={report.finalScore} label="Final Score" />
               <ScoreRing score={report.kpiScore} label="KPI Score" />
               <ScoreRing score={report.attendancePercentage} label="Attendance" />
               <div className="flex flex-col items-center gap-2">
-                <div className="h-24 w-24 bg-gray-50 rounded-full border-4 border-gray-100 flex items-center justify-center">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-full border-4 border-gray-100 flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-xl font-bold text-amber-500">{report.managerRating}</p>
+                    <p className="text-lg sm:text-xl font-bold text-amber-500">{report.managerRating}</p>
                     <p className="text-xs text-gray-400">/5</p>
                   </div>
                 </div>
                 <p className="text-xs text-gray-500">Manager Rating</p>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className={`h-24 w-24 rounded-full border-4 flex items-center justify-center ${report.sentimentCategory === 'Positive' ? 'bg-emerald-50 border-emerald-200' : report.sentimentCategory === 'Negative' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                <div className={`h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 flex items-center justify-center ${report.sentimentCategory === 'Positive' ? 'bg-emerald-50 border-emerald-200' : report.sentimentCategory === 'Negative' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
                   <div className="text-center">
-                    <p className="text-2xl">
+                    <p className="text-xl sm:text-2xl">
                       {report.sentimentCategory === 'Positive' ? '😊' : report.sentimentCategory === 'Negative' ? '😟' : '😐'}
                     </p>
                   </div>
@@ -154,16 +153,16 @@ export default function EmployeeReportPage() {
 
           {/* Manager Feedback */}
           <Card>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
               <h3 className="font-semibold text-gray-900">Manager Feedback</h3>
               {report.manager && (
                 <p className="text-xs text-gray-400">by {report.manager.name}</p>
               )}
             </div>
-            <blockquote className="border-l-4 border-indigo-200 pl-4 text-gray-700 italic leading-relaxed">
-              "{report.managerFeedback}"
+            <blockquote className="border-l-4 border-indigo-200 pl-4 text-gray-700 italic leading-relaxed text-sm sm:text-base">
+              &ldquo;{report.managerFeedback}&rdquo;
             </blockquote>
-            <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-400">
               <span>Sentiment score: <span className={`font-semibold ${getSentimentColor(report.sentimentCategory)}`}>{report.sentimentScore?.toFixed(3)}</span></span>
               <span>·</span>
               <span>Category: <span className={`font-semibold ${getSentimentColor(report.sentimentCategory)}`}>{report.sentimentCategory}</span></span>

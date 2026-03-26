@@ -65,7 +65,7 @@ export default function HRUploadPage() {
     <div>
       <PageHeader title="Upload Employees" subtitle="Import employee data from an Excel spreadsheet" />
 
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-2xl space-y-4 sm:space-y-6">
         {/* Column guide */}
         <Card className="bg-indigo-50 border-indigo-100">
           <div className="flex gap-3">
@@ -79,9 +79,7 @@ export default function HRUploadPage() {
                   <code key={col} className="text-xs bg-white border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded font-mono">{col}</code>
                 ))}
               </div>
-              <p className="text-xs text-indigo-600">
-                ✓ Auto-creates an Employee user account with a generated password for each new row.
-              </p>
+              <p className="text-xs text-indigo-600">✓ Auto-creates an Employee user account with a generated password for each new row.</p>
             </div>
           </div>
         </Card>
@@ -94,7 +92,7 @@ export default function HRUploadPage() {
             onDrop={handleDrop}
             onClick={() => inputRef.current?.click()}
             className={cn(
-              'border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 p-12',
+              'border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 p-8 sm:p-12',
               isDragging ? 'border-indigo-400 bg-indigo-50'
                 : file ? 'border-emerald-300 bg-emerald-50'
                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
@@ -108,7 +106,7 @@ export default function HRUploadPage() {
                   <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-gray-800">{file.name}</p>
+                  <p className="font-semibold text-gray-800 break-all">{file.name}</p>
                   <p className="text-sm text-gray-400">{(file.size / 1024).toFixed(1)} KB · Click to change</p>
                 </div>
               </>
@@ -119,7 +117,7 @@ export default function HRUploadPage() {
                 </div>
                 <div className="text-center">
                   <p className="font-medium text-gray-700">Drop your Excel file here</p>
-                  <p className="text-sm text-gray-400">or click to browse · .xlsx or .xls · max 5 MB</p>
+                  <p className="text-sm text-gray-400">or tap to browse · .xlsx or .xls · max 5 MB</p>
                 </div>
               </>
             )}
@@ -128,24 +126,22 @@ export default function HRUploadPage() {
 
         {error && <ErrorAlert message={error} onDismiss={() => setError(null)} />}
 
-        {/* Upload Summary — uses actual backend response shape */}
         {summary && (
           <Card className="border-emerald-100">
             <h3 className="font-semibold text-gray-900 mb-3">Upload Complete</h3>
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
               {[
                 { label: 'Total Rows', value: summary.processed, color: 'text-gray-900' },
                 { label: 'Succeeded', value: summary.success, color: 'text-emerald-700' },
                 { label: 'Failed', value: summary.failed, color: summary.failed > 0 ? 'text-red-600' : 'text-gray-400' },
               ].map((s) => (
-                <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
-                  <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                <div key={s.label} className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                  <p className={`text-xl sm:text-2xl font-bold ${s.color}`}>{s.value}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
 
-            {/* Row-level errors with row numbers */}
             {summary.errors && summary.errors.length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-semibold text-red-600 mb-2">{summary.errors.length} row(s) had errors:</p>
@@ -164,7 +160,6 @@ export default function HRUploadPage() {
               <SuccessAlert message="All rows processed successfully with no errors." />
             )}
 
-            {/* Generated accounts — backend returns these in dev mode */}
             {summary.generatedAccounts && summary.generatedAccounts.length > 0 && (
               <div className="mt-4">
                 <p className="text-xs font-semibold text-indigo-700 mb-2">
@@ -172,7 +167,7 @@ export default function HRUploadPage() {
                 </p>
                 <div className="max-h-48 overflow-y-auto space-y-1.5 bg-indigo-50 rounded-lg p-3">
                   {summary.generatedAccounts.map((acc, i) => (
-                    <div key={i} className="text-xs font-mono bg-white rounded px-3 py-1.5 border border-indigo-100">
+                    <div key={i} className="text-xs font-mono bg-white rounded px-3 py-1.5 border border-indigo-100 break-all">
                       <span className="text-gray-600">{acc.name}</span>
                       {' · '}
                       <span className="text-indigo-600">{acc.email}</span>
@@ -186,7 +181,7 @@ export default function HRUploadPage() {
           </Card>
         )}
 
-        <Button size="lg" onClick={handleUpload} disabled={!file} isLoading={isUploading}>
+        <Button size="lg" onClick={handleUpload} disabled={!file} isLoading={isUploading} className="w-full sm:w-auto">
           {isUploading ? 'Uploading...' : 'Upload & Import'}
         </Button>
       </div>
