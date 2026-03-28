@@ -1,4 +1,5 @@
 const { uploadEmployeesFromExcel, listAllEmployees, resetEmployeePassword } = require("../services/hrService");
+const { generatePerformanceReport } = require("../services/reportService");
 
 const uploadExcelController = async (req, res, next) => {
   try {
@@ -37,8 +38,22 @@ const resetEmployeePasswordController = async (req, res, next) => {
   }
 };
 
+const downloadReportController = async (req, res, next) => {
+  try {
+    const pdfBuffer = await generatePerformanceReport();
+    const filename = `appraisal_report_${Date.now()}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    return res.end(pdfBuffer);
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   uploadExcelController,
   listEmployeesController,
   resetEmployeePasswordController,
+  downloadReportController,
 };

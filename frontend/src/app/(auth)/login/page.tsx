@@ -78,7 +78,7 @@ export default function LoginPage() {
         <div>
           <blockquote className="text-3xl font-light text-white leading-snug mb-6">
             &ldquo;Performance management isn&apos;t about catching people doing things
-            wrong — it&apos;s about helping them do things right.&rdquo;
+            wrong - it&apos;s about helping them do things right.&rdquo;
           </blockquote>
           <div className="flex gap-8 text-sm text-gray-400">
             {[

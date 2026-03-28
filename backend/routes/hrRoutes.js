@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadExcelController, listEmployeesController, resetEmployeePasswordController } = require('../controllers/hrController');
+const { uploadExcelController, listEmployeesController, resetEmployeePasswordController, downloadReportController } = require('../controllers/hrController');
 const { authMiddleware, authorizeRoles } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 
@@ -34,6 +34,9 @@ router.post(
   authorizeRoles('HR'),
   resetEmployeePasswordController
 );
+
+// HR: download full performance appraisal PDF report
+router.get('/download-report', authMiddleware, authorizeRoles('HR'), downloadReportController);
 
 module.exports = router;
 
